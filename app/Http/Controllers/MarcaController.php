@@ -12,9 +12,18 @@ class MarcaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
+    public function index() {
+        // paginação
+        $marcas = Marca::paginate(10);
+
+        // caso não haja nenhum registro
+        if ($marcas->isEmpty())
+            return response()->json(['message' => 'No records found'], 404);
+
+        return response()->json($marcas);
+
+        // sem paginação
+        //return Marca::all();
     }
 
     /**
@@ -43,9 +52,11 @@ class MarcaController extends Controller
      * @param  \App\Models\Marca  $marca
      * @return \Illuminate\Http\Response
      */
-    public function show(Marca $marca)
-    {
-        //
+    public function show(Marca $marca) {
+        if(!$marca)
+            return response(['message' => 'Invalid id'], 422);
+
+        return $marca;
     }
 
     /**
