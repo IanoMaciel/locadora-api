@@ -66,9 +66,9 @@ class MarcaController extends Controller
      * @param  \App\Models\Marca  $marca
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Marca $marca)
-    {
-        //
+    public function update(Request $request, Marca $marca) {
+        $marca->update($request->all());
+        return $marca;
     }
 
     /**
