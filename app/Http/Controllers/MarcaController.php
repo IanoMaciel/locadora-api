@@ -18,24 +18,23 @@ class MarcaController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request) {
+        $name = $request->input('nome');
+        $existName = Marca::where('nome', $name)->first();
+
+        if($existName !== null) {
+            return response(
+                ['message' => 'Existing name'],
+                409
+            );
+        }
+
+        return Marca::create($request->all());
     }
 
     /**
@@ -45,17 +44,6 @@ class MarcaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Marca $marca)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Marca  $marca
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Marca $marca)
     {
         //
     }
