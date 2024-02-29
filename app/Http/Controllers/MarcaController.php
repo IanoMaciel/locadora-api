@@ -18,10 +18,11 @@ class MarcaController extends Controller {
      */
     public function index() {
         $marcas = $this->marca->paginate(10);
+
         if ($marcas->isEmpty())
             return response()->json(['message' => 'No records found'], 404);
 
-        return response()->json($marcas);
+        return response()->json($marcas, 200);
     }
 
     /**
@@ -31,19 +32,22 @@ class MarcaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $name = $request->input('nome');
-        $existName = Marca::where('nome', $name)->first();
+        // // MY CODE
+        // $name = $request->input('nome');
+        // $existName = Marca::where('nome', $name)->first();
 
-        if($existName !== null) {
-            return response(
-                ['message' => 'Existing name'],
-                409
-            );
-        }
+        // if($existName !== null)
+        //     return response()->json(['message' => 'Existing name'], 409);
 
-        // return Marca::create($request->all());
+        // $marca = $this->marca->create($request->all());
+        // return response()->json($marca, 201);
+
+        // it should return 422 when data is provided
+        $request->validate($this->marca->rules(), $this->marca->feedback());
+
+        // it sho
         $marca = $this->marca->create($request->all());
-        return $marca;
+        return response()->json($marca, 201);
     }
 
     /**
@@ -55,11 +59,10 @@ class MarcaController extends Controller {
     public function show($id) {
         $marca = $this->marca->find($id);
 
-        if ($marca === null) {
-            return response(['message' => 'marca not found'], 404);
-        }
+        if ($marca === null)
+            return response()->json(['message' => 'marca not found'], 404);
 
-        return $marca;
+        return response()->json($marca, 200);
     }
 
     /**
@@ -73,11 +76,11 @@ class MarcaController extends Controller {
         $marca = $this->marca->find($id);
 
         if ($marca === null)
-            return response(['message' => 'brand not found'], 404);
+            return response()->json(['message' => 'brand not found'], 404);
 
         $marca->update($request->all());
 
-        return $marca;
+        return response()->json($marca, 200);
     }
 
     /**
