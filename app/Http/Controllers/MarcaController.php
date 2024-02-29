@@ -42,7 +42,7 @@ class MarcaController extends Controller {
         // $marca = $this->marca->create($request->all());
         // return response()->json($marca, 201);
 
-        // it should return 422 when data is provided
+        // it should return 422 when d is provided
         $request->validate($this->marca->rules(), $this->marca->feedback());
 
         // it sho
@@ -70,16 +70,26 @@ class MarcaController extends Controller {
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  Integer
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
         $marca = $this->marca->find($id);
 
-        if ($marca === null)
+        if ($marca === null) {
             return response()->json(['message' => 'brand not found'], 404);
+        }
 
+        if ($request->method() === 'PATCH') {
+            $dynamicRules = array();
+            foreach ($marca->rules() as $input => $rule) {
+                if (array_key_exists($input, $request->all())) {
+                    $dynamicRules[$input] = $rule;
+                }
+            }
+            $request->validate($dynamicRules, $marca->feedback());
+        } else  {
+            $request->validate($marca->rules(), $marca->feedback());
+        }
         $marca->update($request->all());
-
         return response()->json($marca, 200);
     }
 
