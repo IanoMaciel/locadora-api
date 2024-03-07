@@ -32,21 +32,21 @@ class MarcaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        // // MY CODE
-        // $name = $request->input('nome');
-        // $existName = Marca::where('nome', $name)->first();
-
-        // if($existName !== null)
-        //     return response()->json(['message' => 'Existing name'], 409);
-
-        // $marca = $this->marca->create($request->all());
-        // return response()->json($marca, 201);
-
-        // it should return 422 when d is provided
         $request->validate($this->marca->rules(), $this->marca->feedback());
 
-        // it sho
-        $marca = $this->marca->create($request->all());
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens', 'public');
+
+        $marca = $this->marca->create([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+        ]);
+
+        $marca->nome = $request->nome;
+        $marca->imagem = $imagem_urn;
+        $marca->save();
+
+
         return response()->json($marca, 201);
     }
 
