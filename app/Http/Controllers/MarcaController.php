@@ -74,22 +74,32 @@ class MarcaController extends Controller {
     public function update(Request $request, $id) {
         $marca = $this->marca->find($id);
 
-        if ($marca === null) {
+        if ($marca === null)
             return response()->json(['message' => 'brand not found'], 404);
-        }
 
         if ($request->method() === 'PATCH') {
             $dynamicRules = array();
+
+            // percorrendo as regras definidas no Model
             foreach ($marca->rules() as $input => $rule) {
-                if (array_key_exists($input, $request->all())) {
+                // coleta apenas as regras aplicáveis aos parâmetros parciais das regras
+                if (array_key_exists($input, $request->all()))
                     $dynamicRules[$input] = $rule;
-                }
+
             }
             $request->validate($dynamicRules, $marca->feedback());
         } else  {
             $request->validate($marca->rules(), $marca->feedback());
         }
-        $marca->update($request->all());
+
+        $imagem = $request->file('imagem');
+        $imagem_urn = $imagem->store('imagens', 'public');
+
+
+        $marca->update([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+        ]);
         return response()->json($marca, 200);
     }
 
