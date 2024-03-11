@@ -18,16 +18,18 @@ class ModeloController extends Controller {
     public function index(Request $request) {
         $modelos = array();
 
-        //has->verfica se um parâmetro esta definido
+        if ($request->has('atributos_marca')) {
+            $atributos_marca = $request->atributos_marca;
+            $modelos = $this->modelo->with('marca:id,'.$atributos_marca);
+        } else {
+            $modelos = $this->modelo->with('marca');
+        }
+
         if ($request->has('atributos')) {
             $atributos = $request->atributos;
-            $modelos = $this
-                ->modelo
-                ->selectRaw($atributos)
-                ->with('marca')
-                ->paginate(10);
+            $modelos = $modelos->selectRaw($atributos)->paginate(10);
         } else {
-            $modelos = $this->modelo->with('marca')->paginate(10);
+            $modelos = $modelos->paginate(10);
         }
 
         // $this->modelo->with('marca')->paginate(10);
