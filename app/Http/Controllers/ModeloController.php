@@ -15,11 +15,23 @@ class ModeloController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
-        $modelos = $this->modelo->with('marca')->paginate(10);
-        // all() -> cria um objeto de consulta e na sequência retorna um método get(), resultando uma collections
-        // get() -> já com o método get(), temos a possibilidade de modificar a consulta antes de excutar o método que retorna a colletions
+    public function index(Request $request) {
+        $modelos = array();
 
+        //has->verfica se um parâmetro esta definido
+        if ($request->has('atributos')) {
+            $atributos = $request->atributos;
+            $modelos = $this
+                ->modelo
+                ->selectRaw($atributos)
+                ->with('marca')
+                ->paginate(10);
+        } else {
+            $modelos = $this->modelo->with('marca')->paginate(10);
+        }
+
+        // $this->modelo->with('marca')->paginate(10);
+        $modelos = $modelos;
         if ($modelos->isEmpty())
             return response()->json(['message' => 'no records found'], 404);
 
