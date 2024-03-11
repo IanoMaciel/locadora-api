@@ -26,4 +26,9 @@ class Marca extends Model {
             "imagem.mimes" => "O :attribute deve ser um arquivo PNG."
         ];
     }
+
+    public function modelos() {
+        // uma marca possui muitos modelos (OneToMany)
+        return $this->hasMany('App\Models\Modelo');
+    }
 }
