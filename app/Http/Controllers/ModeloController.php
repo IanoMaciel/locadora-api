@@ -16,7 +16,9 @@ class ModeloController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $modelos = $this->modelo->paginate(10);
+        $modelos = $this->modelo->with('marca')->paginate(10);
+        // all() -> cria um objeto de consulta e na sequência retorna um método get(), resultando uma collections
+        // get() -> já com o método get(), temos a possibilidade de modificar a consulta antes de excutar o método que retorna a colletions
 
         if ($modelos->isEmpty())
             return response()->json(['message' => 'no records found'], 404);
@@ -63,7 +65,7 @@ class ModeloController extends Controller {
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function show($id) {
-        $modelo = $this->modelo->find($id);
+        $modelo = $this->modelo->with('marca')->find($id);
 
         if ($modelo === null)
             return response()->json(['message' => 'The requested resource does not exist'], 404);
@@ -105,18 +107,23 @@ class ModeloController extends Controller {
         $imagem = $request->file('imagem');
         $imagem_urn = $imagem->store('imagens/modelos', 'public');
 
+        // preencher o objeto $marca com os dados da request
+        $modelo->fill($request->all());
+        $modelo->imagem = $imagem_urn;
 
-        $modelo->update([
-            'marca_id' => $request->marca_id,
-            'nome' => $request->nome,
-            'imagem' => $imagem_urn,
-            'numero_portas' => $request->numero_portas,
-            'lugares' => $request->lugares,
-            'air_bag' => $request->air_bag,
-            'abs' => $request->abs,
-        ]);
+        $modelo->save();
+
+//        $modelo->update([
+//            'marca_id' => $request->marca_id,
+//            'nome' => $request->nome,
+//            'imagem' => $imagem_urn,
+//            'numero_portas' => $request->numero_portas,
+//            'lugares' => $request->lugares,
+//            'air_bag' => $request->air_bag,
+//            'abs' => $request->abs,
+//        ]);
+
         return response()->json($modelo, 200);
-
     }
 
     /**
