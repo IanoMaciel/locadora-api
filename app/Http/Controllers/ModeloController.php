@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
+use mysql_xdevapi\DocResult;
 
 class ModeloController extends Controller {
     public function __construct(Modelo $modelo) {
@@ -23,6 +24,15 @@ class ModeloController extends Controller {
             $modelos = $this->modelo->with('marca:id,'.$atributos_marca);
         } else {
             $modelos = $this->modelo->with('marca');
+        }
+
+        if ($request->has('filtro')) {
+            $filtros = explode(';', $request->filtro);
+
+            foreach($filtros as $key => $condicao) {
+                $c = explode(':', $condicao);
+                $modelos = $modelos->where($c[0], $c[1], $c[2]);
+            }
         }
 
         if ($request->has('atributos')) {
