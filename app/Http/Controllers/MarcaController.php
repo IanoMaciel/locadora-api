@@ -17,11 +17,31 @@ class MarcaController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
-        $marcas = $this->marca->with('modelos')->paginate(10);
+    public function index(Request $request) {
 
-        if ($marcas->isEmpty())
-            return response()->json(['message' => 'No records found'], 404);
+        $marcas = array();
+        if ($request->has('atributos_modelos')) {
+            $atributos_modelos = $request->atributos_modelos;
+            $marcas = $this->marca->with('modelos:id,'.$atributos_modelos);
+        } else {
+            $marcas = $this->marca->with('modelos');
+        }
+
+        if ($request->has('filtro')) {
+            $filtros = explode(';', $request->filtro);
+
+            foreach($filtros as $key => $condicao) {
+                $c = explode(':', $condicao);
+                $marcas = $marcas->where($c[0], $c[1], $c[2]);
+            }
+        }
+
+        if ($request->has('atributos')) {
+            $atributos = $request->atributos;
+            $marcas = $marcas->selectRaw($atributos)->paginate(10);
+        } else {
+            $marcas = $marcas->paginate(10);
+        }
 
         return response()->json($marcas, 200);
     }
