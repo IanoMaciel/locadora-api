@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Modelo extends Model {
+class Modelo extends Model
+{
     use HasFactory;
     protected $fillable = [
         'marca_id',
@@ -17,7 +18,8 @@ class Modelo extends Model {
         'abs',
     ];
 
-    public function rules() {
+    public function rules()
+    {
         return [
             'marca_id' => 'required|integer|exists:marcas,id',
             'nome' => 'required|unique:modelos,nome,'.$this->id.'|min:3',
@@ -29,7 +31,8 @@ class Modelo extends Model {
         ];
     }
 
-    public function marca() {
+    public function marca()
+    {
         // um modelo pertence a uma marca
         return $this->belongsTo('App\Models\Marca');
     }

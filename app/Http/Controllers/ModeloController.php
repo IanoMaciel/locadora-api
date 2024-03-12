@@ -5,49 +5,41 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
-use mysql_xdevapi\DocResult;
+use App\Repositories\ModeloRepository;
 
-class ModeloController extends Controller {
-    public function __construct(Modelo $modelo) {
+class ModeloController extends Controller
+{
+    protected $modelo;
+
+    public function __construct(Modelo $modelo)
+    {
         $this->modelo = $modelo;
     }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) {
-        $modelos = array();
-
+    public function index(Request $request)
+    {
+        $modeloRepository = new ModeloRepository($this->modelo);
         if ($request->has('atributos_marca')) {
-            $atributos_marca = $request->atributos_marca;
-            $modelos = $this->modelo->with('marca:id,'.$atributos_marca);
+            $atributos_marca = 'marca:id,'.$request->atributos_marca;
+            $modeloRepository->selectAtributosRegistrosRelacionados($atributos_marca);
         } else {
-            $modelos = $this->modelo->with('marca');
+            $modeloRepository->selectAtributosRegistrosRelacionados('marca');
         }
 
         if ($request->has('filtro')) {
-            $filtros = explode(';', $request->filtro);
-
-            foreach($filtros as $key => $condicao) {
-                $c = explode(':', $condicao);
-                $modelos = $modelos->where($c[0], $c[1], $c[2]);
-            }
+            $modeloRepository->filtro($request->filtro);
         }
 
-        if ($request->has('atributos')) {
-            $atributos = $request->atributos;
-            $modelos = $modelos->selectRaw($atributos)->paginate(10);
-        } else {
-            $modelos = $modelos->paginate(10);
+        if($request->has('atributos')) {
+            $modeloRepository->selectAtributos($request->atributos);
         }
 
-        // $this->modelo->with('marca')->paginate(10);
-        $modelos = $modelos;
-        if ($modelos->isEmpty())
-            return response()->json(['message' => 'no records found'], 404);
-
-        return response()->json($modelos, 200);
+        return response()->json($modeloRepository->getResultado(), 200);
     }
 
     /**
@@ -56,7 +48,8 @@ class ModeloController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate($this->modelo->rules());
 
         $imagem = $request->file('imagem');
@@ -88,11 +81,13 @@ class ModeloController extends Controller {
      * @param  Integer $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show($id)
+    {
         $modelo = $this->modelo->with('marca')->find($id);
 
-        if ($modelo === null)
+        if ($modelo === null) {
             return response()->json(['message' => 'The requested resource does not exist'], 404);
+        }
 
         return response()->json($modelo, 200);
     }
@@ -104,11 +99,13 @@ class ModeloController extends Controller {
      * @param  Integer $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
-         $modelo = $this->modelo->find($id);
+    public function update(Request $request, $id)
+    {
+        $modelo = $this->modelo->find($id);
 
-        if ($modelo === null)
+        if ($modelo === null) {
             return response()->json(['message' => 'The requested resource does not exist'], 404);
+        }
 
         if ($request->method() === 'PATCH') {
             $dynamicRules = array();
@@ -116,17 +113,20 @@ class ModeloController extends Controller {
             // percorrendo as regras definidas no Model
             foreach ($modelo->rules() as $input => $rule) {
                 // coleta apenas as regras aplicáveis aos parâmetros parciais das regras
-                if (array_key_exists($input, $request->all()))
+                if (array_key_exists($input, $request->all())) {
                     $dynamicRules[$input] = $rule;
+                }
 
             }
             $request->validate($dynamicRules);
-        } else  {
+        } else {
             $request->validate($modelo->rules());
         }
 
         // remove um arquivo antigo, caso um novo arquivo tenha sido enviado na request
-        if ($request->file('imagem')) Storage::disk('public')->delete($modelo->imagem);
+        if ($request->file('imagem')) {
+            Storage::disk('public')->delete($modelo->imagem);
+        }
 
         $imagem = $request->file('imagem');
         $imagem_urn = $imagem->store('imagens/modelos', 'public');
@@ -137,15 +137,15 @@ class ModeloController extends Controller {
 
         $modelo->save();
 
-//        $modelo->update([
-//            'marca_id' => $request->marca_id,
-//            'nome' => $request->nome,
-//            'imagem' => $imagem_urn,
-//            'numero_portas' => $request->numero_portas,
-//            'lugares' => $request->lugares,
-//            'air_bag' => $request->air_bag,
-//            'abs' => $request->abs,
-//        ]);
+        //        $modelo->update([
+        //            'marca_id' => $request->marca_id,
+        //            'nome' => $request->nome,
+        //            'imagem' => $imagem_urn,
+        //            'numero_portas' => $request->numero_portas,
+        //            'lugares' => $request->lugares,
+        //            'air_bag' => $request->air_bag,
+        //            'abs' => $request->abs,
+        //        ]);
 
         return response()->json($modelo, 200);
     }
@@ -156,11 +156,13 @@ class ModeloController extends Controller {
      * @param  Integer $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $modelo = $this->modelo->find($id);
 
-        if ($modelo === null)
+        if ($modelo === null) {
             return response()->json(['message' => 'The specified resource does not exist'], 404);
+        }
 
         // remove um arquivo antigo, caso um novo arquivo tenha sido enviado na request.
         Storage::disk('public')->delete($modelo->imagem);
