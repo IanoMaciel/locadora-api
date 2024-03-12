@@ -19,10 +19,15 @@ class Carro extends Model
     public function rules()
     {
         return [
-            'modelo_id' => 'required|integer|exists:modelo,id',
+            'modelo_id' => 'required|integer|exists:modelos,id',
             'placa' => 'required|string',
             'disponivel' => 'required',
             'km' => 'required|integer',
         ];
+    }
+
+    public function modelo()
+    {
+        return $this->belongsTo('App\Models\Modelo');
     }
 }

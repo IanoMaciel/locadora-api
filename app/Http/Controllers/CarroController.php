@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateCarroRequest;
 use App\Models\Carro;
-use App\Repositories\CarroRepository;
 use Illuminate\Http\Request;
+use App\Repositories\CarroRepository;
 
 class CarroController extends Controller
 {
@@ -29,25 +28,26 @@ class CarroController extends Controller
      */
     public function index(Request $request)
     {
+
         $carroRepository = new CarroRepository($this->carro);
 
-        if ($request->has('atributos_modelos')) {
-            $atributos_modelos = 'modelos:id,' . $request->atributos_modelos;
-            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
+        if($request->has('atributos_modelo')) {
+            $atributos_modelo = 'modelo:id,'.$request->atributos_modelo;
+            $carroRepository->selectAtributosRegistrosRelacionados($atributos_modelo);
         } else {
-            $carroRepository->selectAtributosRegistrosRelacionados('modelos');
+            $carroRepository->selectAtributosRegistrosRelacionados('modelo');
         }
 
-        if ($request->has('filtro')) {
+        if($request->has('filtro')) {
             $carroRepository->filtro($request->filtro);
         }
 
-
-        if ($request->has('atributos')) {
+        if($request->has('atributos')) {
             $carroRepository->selectAtributos($request->atributos);
         }
 
         return response()->json($carroRepository->getResultado(), 200);
+
     }
 
     /**
@@ -58,12 +58,9 @@ class CarroController extends Controller
      */
     public function store(Request $request)
     {
-        //$request->validate($this->carro->rules());
-
-        dd($request->all());
-
-        // $carro = $this->carro->create($request->all());
-        // return response()->json($carro, 200);
+        $request->validate($this->carro->rules());
+        $carro = $this->carro->create($request->all());
+        return response()->json($carro, 200);
     }
 
     /**
