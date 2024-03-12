@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
-use mysql_xdevapi\DocResult;
 
 class ModeloController extends Controller {
+
+    protected $modelo;
+
     public function __construct(Modelo $modelo) {
         $this->modelo = $modelo;
     }
