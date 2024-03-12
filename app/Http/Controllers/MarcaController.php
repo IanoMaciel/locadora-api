@@ -9,6 +9,13 @@ use App\Models\Marca;
 
 class MarcaController extends Controller {
 
+    protected $marca;
+
+    /**
+     * Undocumented function
+     *
+     * @param Marca $marca
+     */
     public function __construct (Marca $marca) {
         $this->marca = $marca;
     }
@@ -21,7 +28,7 @@ class MarcaController extends Controller {
     public function index (Request $request) {
         $marcaRepository = new MarcaRepository($this->marca);
         if ($request->has('atributos_modelos')) {
-            $atributos_modelos = 'modelos:id'.$request->atributos_modelos;
+            $atributos_modelos = 'modelos:id,'.$request->atributos_modelos;
             $marcaRepository->selectAtributosRegistrosRelacionados($atributos_modelos);
         } else {
             $marcaRepository->selectAtributosRegistrosRelacionados('modelos');
