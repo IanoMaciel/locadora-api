@@ -56,7 +56,15 @@ class ClienteController extends Controller
      */
     public function show($id)
     {
-        
+
+        $cliente = $this->cliente->find($id);
+
+        if ($cliente === null) {
+            return response()->json(['message' => 'Cliente não existe']);
+        }
+
+        return response()->json($cliente, 200);
+
     }
 
     /**
