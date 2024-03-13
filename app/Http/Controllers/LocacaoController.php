@@ -65,36 +65,36 @@ class LocacaoController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Locacao  $locacao
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Locacao $locacao)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateLocacaoRequest  $request
-     * @param  \App\Models\Locacao  $locacao
+     * @param Integer $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateLocacaoRequest $request, Locacao $locacao)
+    public function update(Request $request, $id)
     {
-        //
+        $locacao = $this->locacao->find($id);
+
+        if ($locacao === null) {
+            return response()->json(['message' => 'Locação não encontrada'], 404);
+        }
+        $locacao->update();
+        return response()->json();
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Locacao  $locacao
+     * @param  Integer $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Locacao $locacao)
+    public function destroy($id)
     {
-        //
+        $locacao = $this->locacao->find($id);
+
+        if ($locacao === null) {
+            return response()->json(['message' => 'Locação não encontrada'], 404);
+        }
+        $locacao->delete();
+        return response()->json(['message' => 'Removido com sucesso!'], 200);
     }
 }
