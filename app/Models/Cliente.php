@@ -11,7 +11,7 @@ class Cliente extends Model
 
     protected $fillable = ['nome'];
 
-    private function rules()
+    public function rules()
     {
         return ['nome' => 'required'];
     }
