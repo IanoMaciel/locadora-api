@@ -60,7 +60,7 @@ class ClienteController extends Controller
         $cliente = $this->cliente->find($id);
 
         if ($cliente === null) {
-            return response()->json(['message' => 'Cliente não existe']);
+            return response()->json(['message' => 'Cliente não existe'], 404);
         }
 
         return response()->json($cliente, 200);
@@ -76,7 +76,7 @@ class ClienteController extends Controller
     {
         $cliente = $this->cliente->find($id);
         if ($cliente === null) {
-            return response()->json(['message' => 'Cliente não existe']);
+            return response()->json(['message' => 'Cliente não existe'],404);
         }
 
         $cliente->update($request->all());
@@ -87,11 +87,17 @@ class ClienteController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Cliente  $cliente
+     * @param  Integer $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Cliente $cliente)
+    public function destroy($id)
     {
-        //
+        $cliente = $this->cliente->find($id);
+        if ($cliente === null) {
+            return response()->json(['message' => 'Cliente não existe'], 404);
+        }
+
+        $cliente->delete();
+        return response()->json(['message' => 'Registro removido com sucesso!'], 200);
     }
 }
