@@ -4,28 +4,36 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
+use App\Repositories\ClienteRepository;
+use Illuminate\Http\Request;
 use App\Models\Cliente;
 
 class ClienteController extends Controller
 {
+    protected $cliente;
+
+    public function __construct(Cliente $cliente)
+    {
+        $this->cliente = $cliente;
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $clienteRepository = new ClienteRepository($this->cliente);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        if ($request->has('filtro')) {
+            $clienteRepository->filtro($request->filtro);
+        }
+
+        if($request->has('atributos')) {
+            $clienteRepository->selectAtributos($request->atributos);
+        }
+
+        return response()->json($clienteRepository->getResultado(), 200);
     }
 
     /**
@@ -46,17 +54,6 @@ class ClienteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Cliente $cliente)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Cliente  $cliente
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Cliente $cliente)
     {
         //
     }
