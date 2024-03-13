@@ -64,19 +64,24 @@ class ClienteController extends Controller
         }
 
         return response()->json($cliente, 200);
-
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateClienteRequest  $request
-     * @param  \App\Models\Cliente  $cliente
+     * @param  Integer $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateClienteRequest $request, Cliente $cliente)
+    public function update(Request $request, $id)
     {
-        //
+        $cliente = $this->cliente->find($id);
+        if ($cliente === null) {
+            return response()->json(['message' => 'Cliente não existe']);
+        }
+
+        $cliente->update($request->all());
+
+        return response()->json($cliente, 200);
     }
 
     /**
